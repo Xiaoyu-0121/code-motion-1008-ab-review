@@ -1,9 +1,9 @@
 # code-motion-opus55-1008 Round-1 耗时 A/B 对比站
 
-- 对比页：[index.html](./index.html)
-- [独立判定（中文）](./independent_judge.zh.md)
-- [信号判定（中文）](./judge_report.zh.md)
+- 对比页：https://xiaoyu-0121.github.io/code-motion-1008-ab-review/
+- [独立判定](./independent_judge.zh.html)
+- [信号判定](./judge_report.zh.html)
 
-说明：成片视频托管在 VidMuse **dev CDN**（`vidmuse-dev-video.sandcdn.com`），需能访问公司/dev 网络才能播放。页面本身是静态 HTML。
+成片视频在 VidMuse **dev CDN**，需能访问 sandaii 网络才能播放。
 
-Δ = perf − base（分钟）；完整 9 对均值约 −2.0 min；独立判定认为本轮 4 项改动无可信耗时因果。
+完整 9 对均值约 −2.0 min；独立判定认为本轮 4 项改动无可信耗时因果。

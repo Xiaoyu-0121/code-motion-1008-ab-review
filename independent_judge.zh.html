@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>独立耗时判定（A/B）</title>
+<style>
+:root { --bg:#0f1115; --panel:#1a1e27; --ink:#e8e6e1; --muted:#9aa3b2; --line:#2a3140; --accent:#8eb6ff; }
+* { box-sizing:border-box; }
+body { margin:0; font:15px/1.55 "IBM Plex Sans", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:1080px; margin:0 auto; padding:28px 24px 64px; }
+.nav { color:var(--muted); font-size:13px; margin-bottom:18px; }
+.nav a { margin-right:10px; }
+h1 { margin:0 0 8px; font:600 24px/1.25 "IBM Plex Sans", "PingFang SC", sans-serif; letter-spacing:-0.02em; }
+h2 { margin:28px 0 10px; font-size:18px; border-top:1px solid var(--line); padding-top:22px; }
+h3 { margin:20px 0 8px; font-size:15px; color:#d8d4cc; }
+p, li { color:#d4d0c8; max-width:78ch; }
+ul { padding-left:1.2em; }
+code { font:12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background:#12151c; padding:1px 5px; border-radius:4px; color:#c9d4e8; }
+.note { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 14px; color:var(--muted); margin:14px 0 22px; max-width:78ch; }
+.table-wrap { overflow-x:auto; margin:12px 0 20px; border:1px solid var(--line); border-radius:8px; }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:720px; }
+th, td { vertical-align:top; padding:9px 10px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); }
+th { text-align:left; color:var(--muted); font-weight:550; background:#141821; position:sticky; top:0; }
+td:last-child, th:last-child { border-right:none; }
+tr:last-child td { border-bottom:none; }
+.badge { display:inline-block; padding:1px 7px; border-radius:999px; font-size:12px; border:1px solid var(--line); }
+.badge-randomness, .badge-random { color:#f0a0a0; border-color:#5a3030; background:#2a1818; }
+.badge-noise { color:#c9c6bf; border-color:#3a3f4a; background:#1a1e27; }
+.badge-excluded, .badge-inconclusive { color:#e0c56e; border-color:#5a4a20; background:#2a2410; }
+.badge-attributed { color:#7ddea0; border-color:#2a5a3a; background:#15241a; }
+.badge-mixed { color:#f0c070; border-color:#5a4020; background:#2a2010; }
+hr { border:0; border-top:1px solid var(--line); margin:24px 0; }
+strong { color:var(--ink); }
+</style></head><body>
+<div class="wrap">
+<div class="nav"><a href="index.html">← 对比站</a><a href="index.html">成片对比</a> · <strong>独立判定</strong> · <a href="judge_report.zh.html">信号判定</a></div>
+<h1>独立耗时判定（A/B）</h1>
+<p>判定依据：仅根据 <code>metrics.jsonl</code>、<code>runs.jsonl</code>、<code>cases.json</code> 重新推导。未把 <code>judge_report.md</code> 当作事实；未查看 plugin 源码。</p>
+<p>计入均值/标注的完整成对：<strong>9</strong> 对（排除 <strong>c08</strong>——base 未交付 <code>delivered=false</code>）。  <br>Δ = perf − base（分钟）。|Δ| ≤ 2 → <strong>噪声</strong>。某项「声称改动」只有在对应信号朝正确方向变化，<strong>且</strong>该阶段能解释 Δ 中有意义的一部分时，才算归因成立。</p>
+<hr>
+<h2>1. 总评</h2>
+<p>九对完整成片的墙钟耗时均值差约 <strong>−2.0 分钟</strong>（base 38.0 → perf 36.0），落在噪声带；中位数（−5.2）被少数「计划/结构分叉」的大起大落拉偏，并不是某套机制稳定奏效。本轮四项声称的耗时改动<strong>没有可信因果效应</strong>：async 相关信号（<code>main_poll_*</code>、<code>resume_gap</code>）平均持平甚至变差；scoped onboarding 失败——即便 <code>child_to_first_write</code> 偶有下降，<code>children_reading_engine</code> 仍接近打满（常为 100%）；<code>asset_cp</code> / <code>asset_retype_or_find</code> 方向不稳定，且从不足以解释数分钟级 Δ；<code>entry_fixes</code> 两边本来就是 0。观察到的变快，以及 c02 的大幅变慢，更宜标为 <strong>agent 随机性 / 执行计划分叉</strong>（子 agent 数量翻转、setup 或 post_children 文字阶段膨胀、render/compress 形态变化），而不是补丁生效。</p>
+<hr>
+<h2>2. 分 case 表</h2>
+<div class="table-wrap"><table><thead><tr><th>case</th><th>base</th><th>perf</th><th>Δ</th><th>标注</th><th>证据</th></tr></thead><tbody>
+<tr><td>c01-earbuds-night-studio-promo</td><td>41.9</td><td>36.7</td><td>−5.2</td><td><span class="badge badge-randomness">随机性</span></td><td>结构分叉：base 3 个 child vs perf 0；retype 0→1（资产信号反了）；无可比的 poll/onboarding 信号。</td></tr>
+<tr><td>c02-shift-scheduling-saas-walkthrough</td><td>37.1</td><td>63.5</td><td>+26.4</td><td><span class="badge badge-randomness">随机性</span></td><td>setup +9.3、children_wall +14.8；kids 5→6；poll/resume 持平；engine 读者 5→6；asset_cp 1→0。</td></tr>
+<tr><td>c03-pythagoras-hand-drawn-explainer</td><td>33.9</td><td>37.5</td><td>+3.6</td><td><span class="badge badge-randomness">随机性</span></td><td>主要是 setup +3.7；perf 反而增加 poll 240s（async 更差）；engine 读者 3→4；asset/entry 持平。</td></tr>
+<tr><td>c04-maritime-silk-road-vintage-map</td><td>46.7</td><td>39.2</td><td>−7.5</td><td><span class="badge badge-randomness">随机性</span></td><td>Δ 几乎全在 post_children −6.9；wall/setup 持平；first_write 变差；retype 0→2；poll 5s→0 买不回 7.5 分钟。</td></tr>
+<tr><td>c05-coffee-brand-annual-data</td><td>32.5</td><td>29.2</td><td>−3.3</td><td><span class="badge badge-noise">噪声</span></td><td>刚过 ±2；wall −4.1 但 engine 读者 3→4（scoped 失败）；poll 持平；cp 0→1 太小，解释不了 Δ。</td></tr>
+<tr><td>c06-hackathon-teaser-slam-type</td><td>23.6</td><td>24.4</td><td>+0.8</td><td><span class="badge badge-noise">噪声</span></td><td>\</td><td>Δ\</td><td>&amp;lt;2；结构分叉 base 5 kids vs perf 0；声称信号不适用/持平。</td></tr>
+<tr><td>c07-pixel-office-week-short</td><td>33.6</td><td>25.0</td><td>−8.6</td><td><span class="badge badge-randomness">随机性</span></td><td>wall/post 下降，但 poll 0→2（250s）、engine 读者 3→4，与 async/scoped 主张矛盾；主对话 text 21.4→6.6，属计划分叉。</td></tr>
+<tr><td>c08-kids-waste-sorting-toy-3d</td><td>97.7*</td><td>44.9</td><td>—</td><td><span class="badge badge-excluded">排除</span></td><td>base 未交付；不计入均值。</td></tr>
+<tr><td>c09-pour-over-coffee-papercut-howto</td><td>50.3</td><td>32.8</td><td>−17.5</td><td><span class="badge badge-randomness">随机性</span></td><td>约 −10.7 来自 post_children，另有 setup −5；resume_gap 0.1→2.0（async 更差）；asset_cp 1→0；first_write −1.9 ≪ Δ。</td></tr>
+<tr><td>c10-neon-filaments-art-piece</td><td>42.7</td><td>35.9</td><td>−6.8</td><td><span class="badge badge-randomness">随机性</span></td><td>结构分叉 0→1 child；renders 5→3 / 主进程 engine 读 13→4；虽有 asset_cp↑ retype↓，但解释不了约 7 分钟。</td></tr>
+</tbody></table></div>
+<p>\*未交付</p>
+<p>完整成对均值 Δ：<strong>−2.0 分钟</strong>（中位 <strong>−5.2</strong>）。</p>
+<hr>
+<h2>3. 四项声称改动的可信度</h2>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>声称</th><th>期望信号</th><th>完整集合上的表现</th><th>可信？</th></tr></thead><tbody>
+<tr><td>1</td><td>异步 children</td><td>↓ <code>main_poll_cmds</code> / <code>main_poll_sleep_s</code> / <code>resume_gap</code></td><td>双边都有 kids 的 6 对：poll_cmds 0.17→0.50，poll_sleep 0.8→81.7s，resume_gap 0.20→0.55 — <strong>方向反了</strong>。信号正确且能解释实质 Δ 的 case：<strong>0</strong>。</td><td><strong>否</strong>（0/9 可归因）</td></tr>
+<tr><td>2</td><td>收窄 builder 上手</td><td>↓ <code>children_reading_engine</code>，↓ <code>child_to_first_write</code></td><td>engine 读者仍几乎全员（均值 3.83→4.33）。first_write 在 5/6 双边-kids 对上均值下降，但 engine 门槛未过，且 first_write 节省单独解释不了大 Δ。</td><td><strong>否</strong>（最多弱 first_write 抖动；<strong>0</strong> 例清晰归因）</td></tr>
+<tr><td>3</td><td>资产用 <code>cp</code></td><td>↑ <code>asset_cp</code>，↓ <code>asset_retype_or_find</code></td><td>方向对：c05、c10。方向错：c01、c02、c04、c09。其余持平。没有任何一对靠资产信号解释有意义的 Δ。</td><td><strong>否</strong>（信号不稳；<strong>0</strong> 例耗时因果）</td></tr>
+<tr><td>4</td><td>公开 entry 路径</td><td>↓ <code>entry_fixes</code></td><td><strong>每条 thread 都是 0→0</strong>——无变化，无从归因。</td><td><strong>否</strong>（0/9；已在地板）</td></tr>
+</tbody></table></div>
+<p><strong>汇总：</strong> 声称改动带来可信耗时效应 = <strong>0/4</strong>。标为「由改动引起」= <strong>0</strong>；随机性 = <strong>6</strong>；噪声 = <strong>2</strong>；排除 = <strong>1</strong>。</p>
+<hr>
+<h2>4. 质量–耗时权衡：建议人工看片</h2>
+<p>墙钟波动大、可能存在计划/质量与速度交换（或交付失败）的 case：</p>
+<div class="table-wrap"><table><thead><tr><th>case</th><th>Δ</th><th>为何要看</th></tr></thead><tbody>
+<tr><td><strong>c02</strong></td><td><strong>+26.4</strong></td><td>perf 明显更慢；children_wall + setup 更重；6 vs 5 kids——确认是更完整还是卡住。</td></tr>
+<tr><td><strong>c09</strong></td><td><strong>−17.5</strong></td><td>完整对里最大「赢」；主要由 post_children 塌缩 + 主对话变短——核对成片剪辑/质量是否逊于 base。</td></tr>
+<tr><td><strong>c07</strong></td><td><strong>−8.6</strong></td><td>大赢但 poll↑ 与主张矛盾；确认成片质量是否对齐 base。</td></tr>
+<tr><td><strong>c04</strong></td><td><strong>−7.5</strong></td><td>赢几乎全在 post_children，不是声称信号——对比收尾质量。</td></tr>
+<tr><td><strong>c10</strong></td><td><strong>−6.8</strong></td><td>架构不同（0 vs 1 child）+ 更少 render——艺术片质量核验。</td></tr>
+<tr><td><strong>c01</strong></td><td><strong>−5.2</strong></td><td>perf 主进程独干（0 children）vs base 3 kids——结构质量风险。</td></tr>
+<tr><td><strong>c08</strong></td><td>不适用（base 未交付）</td><td>base 从未交付 <code>.mp4</code>；视为 base 交付/质量失败，不是耗时胜利。</td></tr>
+</tbody></table></div>
+<p>仅凭耗时不必优先看片：<strong>c03</strong>（小幅 +3.6）、<strong>c05</strong> / <strong>c06</strong>（接近噪声）。</p>
+</div></body></html>

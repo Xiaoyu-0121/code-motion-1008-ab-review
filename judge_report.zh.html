@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Round-1 耗时归因（信号判定）</title>
+<style>
+:root { --bg:#0f1115; --panel:#1a1e27; --ink:#e8e6e1; --muted:#9aa3b2; --line:#2a3140; --accent:#8eb6ff; }
+* { box-sizing:border-box; }
+body { margin:0; font:15px/1.55 "IBM Plex Sans", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:1080px; margin:0 auto; padding:28px 24px 64px; }
+.nav { color:var(--muted); font-size:13px; margin-bottom:18px; }
+.nav a { margin-right:10px; }
+h1 { margin:0 0 8px; font:600 24px/1.25 "IBM Plex Sans", "PingFang SC", sans-serif; letter-spacing:-0.02em; }
+h2 { margin:28px 0 10px; font-size:18px; border-top:1px solid var(--line); padding-top:22px; }
+h3 { margin:20px 0 8px; font-size:15px; color:#d8d4cc; }
+p, li { color:#d4d0c8; max-width:78ch; }
+ul { padding-left:1.2em; }
+code { font:12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background:#12151c; padding:1px 5px; border-radius:4px; color:#c9d4e8; }
+.note { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 14px; color:var(--muted); margin:14px 0 22px; max-width:78ch; }
+.table-wrap { overflow-x:auto; margin:12px 0 20px; border:1px solid var(--line); border-radius:8px; }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:720px; }
+th, td { vertical-align:top; padding:9px 10px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); }
+th { text-align:left; color:var(--muted); font-weight:550; background:#141821; position:sticky; top:0; }
+td:last-child, th:last-child { border-right:none; }
+tr:last-child td { border-bottom:none; }
+.badge { display:inline-block; padding:1px 7px; border-radius:999px; font-size:12px; border:1px solid var(--line); }
+.badge-randomness, .badge-random { color:#f0a0a0; border-color:#5a3030; background:#2a1818; }
+.badge-noise { color:#c9c6bf; border-color:#3a3f4a; background:#1a1e27; }
+.badge-excluded, .badge-inconclusive { color:#e0c56e; border-color:#5a4a20; background:#2a2410; }
+.badge-attributed { color:#7ddea0; border-color:#2a5a3a; background:#15241a; }
+.badge-mixed { color:#f0c070; border-color:#5a4020; background:#2a2010; }
+hr { border:0; border-top:1px solid var(--line); margin:24px 0; }
+strong { color:var(--ink); }
+</style></head><body>
+<div class="wrap">
+<div class="nav"><a href="index.html">← 对比站</a><a href="index.html">成片对比</a> · <a href="independent_judge.zh.html">独立判定</a> · <strong>信号判定</strong></div>
+<h1>Round-1 耗时归因（信号判定器）</h1>
+<div class="note">说明：这是按「信号是否触发 + 阶段耗时是否对得上」自动归类的结果。独立判定（见 <code>independent_judge.zh.md</code>）更严格，<strong>不采信</strong>本报告里若干「attributed」标签；两份请对照看。<br>本报告计入 n=10（含 c08 未交付对），均值会受 c08 的 −52.8 扭曲；独立判定只用 9 对完整成片。</div>
+<p>均值 Δ <strong>−7.1</strong> 分钟；中位 <strong>−6.0</strong>；n=10  <br>类别：attributed=5，inconclusive=1，mixed=1，noise=1，random=2</p>
+<p><strong>归因规则：</strong> 仅当 round-1 对应信号触发，且节省的时间落在匹配阶段（poll/resume、child 首次写入/engine 阅读、资产重打字、entry 修复）时标为 <strong>attributed</strong>。仅 setup 主导、或 render/compress/子数量分叉且无匹配信号 → <strong>random</strong>。±2 分钟 → <strong>noise</strong>。</p>
+<p>Δ = perf − base。负值 = perf 更快。</p>
+<div class="table-wrap"><table><thead><tr><th>case</th><th>base</th><th>perf</th><th>Δ</th><th>类别</th><th>原因</th><th>触发的改动</th></tr></thead><tbody>
+<tr><td>c01-earbuds-night-studio-promo</td><td>41.9</td><td>36.7</td><td>−5.2</td><td><span class="badge badge-random">random</span></td><td>compress_context 差异；child 数量分叉</td><td>—</td></tr>
+<tr><td>c02-shift-scheduling-saas-walkthrough</td><td>37.1</td><td>63.5</td><td>+26.4</td><td><span class="badge badge-mixed">mixed</span></td><td>compress_context 差异；可解释≈2.0 / +26.4</td><td>scoped_onboarding</td></tr>
+<tr><td>c03-pythagoras-hand-drawn-explainer</td><td>33.9</td><td>37.5</td><td>+3.6</td><td><span class="badge badge-random">random</span></td><td>setup 主导（+3.7），超出 round-1 范围</td><td>—</td></tr>
+<tr><td>c04-maritime-silk-road-vintage-map</td><td>46.7</td><td>39.2</td><td>−7.5</td><td><span class="badge badge-attributed">attributed</span></td><td>信号 async_children；可解释≈0.1 / −7.5</td><td>async_children</td></tr>
+<tr><td>c05-coffee-brand-annual-data</td><td>32.5</td><td>29.2</td><td>−3.3</td><td><span class="badge badge-attributed">attributed</span></td><td>信号 scoped_onboarding；可解释≈3.6 / −3.3</td><td>scoped_onboarding</td></tr>
+<tr><td>c06-hackathon-teaser-slam-type</td><td>23.6</td><td>24.4</td><td>+0.8</td><td><span class="badge badge-noise">noise</span></td><td>落在 ±2 分钟内</td><td>—</td></tr>
+<tr><td>c07-pixel-office-week-short</td><td>33.6</td><td>25.0</td><td>−8.6</td><td><span class="badge badge-attributed">attributed</span></td><td>信号 scoped_onboarding；可解释≈4.5 / −8.6</td><td>scoped_onboarding</td></tr>
+<tr><td>c08-kids-waste-sorting-toy-3d</td><td>97.7</td><td>44.9</td><td>−52.8</td><td><span class="badge badge-inconclusive">inconclusive</span></td><td>base 未交付</td><td>asset_cp</td></tr>
+<tr><td>c09-pour-over-coffee-papercut-howto</td><td>50.3</td><td>32.8</td><td>−17.5</td><td><span class="badge badge-attributed">attributed</span></td><td>信号 scoped_onboarding；可解释≈3.2 / −17.5</td><td>scoped_onboarding</td></tr>
+<tr><td>c10-neon-filaments-art-piece</td><td>42.7</td><td>35.9</td><td>−6.8</td><td><span class="badge badge-attributed">attributed</span></td><td>信号 asset_cp；可解释≈0.0 / −6.8</td><td>asset_cp</td></tr>
+</tbody></table></div>
+<hr>
+<h2>分 case 细节</h2>
+<h3>c01-earbuds-night-studio-promo</h3>
+<ul>
+<li>阶段 Δ：<code>total: -5.2</code></li>
+<li>信号摘要：双边均无 poll；perf 无 child（base 3 个且 3/3 读 engine）；perf 出现 asset retype。</li>
+<li>类别：<strong>random</strong> — compress_context 差异；child 数量分叉</li>
+</ul>
+<h3>c02-shift-scheduling-saas-walkthrough</h3>
+<ul>
+<li>阶段 Δ：<code>setup +9.3</code>，<code>children_wall +14.8</code>，<code>post_children +2.3</code>，<code>resume_gap 0</code>，<code>total +26.4</code></li>
+<li>信号摘要：poll/resume 持平；engine 读者 5→6；first_write 7.64→6.28；asset_cp 1→0，retype 双边均为 1。</li>
+<li>类别：<strong>mixed</strong> — compress_context 差异；可解释≈2.0 / +26.4</li>
+</ul>
+<h3>c03-pythagoras-hand-drawn-explainer</h3>
+<ul>
+<li>阶段 Δ：<code>setup +3.7</code>，<code>children_wall -2.3</code>，<code>post_children +2.2</code>，<code>resume_gap +0.5</code>，<code>total +3.6</code></li>
+<li>信号摘要：perf 增加 poll（240s）；engine 读者 3→4；asset retype 双边均为 1。</li>
+<li>类别：<strong>random</strong> — setup 主导（+3.7），超出 round-1 范围</li>
+</ul>
+<h3>c04-maritime-silk-road-vintage-map</h3>
+<ul>
+<li>阶段 Δ：<code>setup +0.2</code>，<code>children_wall -0.8</code>，<code>post_children -6.9</code>，<code>resume_gap +0.1</code>，<code>total -7.5</code></li>
+<li>信号摘要：poll 1→0（仅约 5s）；engine 读者 4/4→4/4；first_write 反而 8.22→9.6；retype 0→2。</li>
+<li>类别：<strong>attributed</strong> — 信号 async_children；可解释≈0.1 / −7.5</li>
+</ul>
+<p>  （独立判定认为：5 秒 poll 解释不了 −7.5，主因在 post_children，应标随机性。）</p>
+<h3>c05-coffee-brand-annual-data</h3>
+<ul>
+<li>阶段 Δ：<code>setup +0.7</code>，<code>children_wall -4.1</code>，<code>post_children +0.1</code>，<code>total -3.3</code></li>
+<li>信号摘要：poll 持平；engine 读者 3→4；first_write 7.4→5.72；cp 0→1。</li>
+<li>类别：<strong>attributed</strong> — 信号 scoped_onboarding；可解释≈3.6 / −3.3</li>
+</ul>
+<p>  （独立判定：engine 读者未降，刚过噪声带，倾向 noise。）</p>
+<h3>c06-hackathon-teaser-slam-type</h3>
+<ul>
+<li>阶段 Δ：<code>total +0.8</code></li>
+<li>信号摘要：perf 0 child vs base 5；声称信号大多不适用。</li>
+<li>类别：<strong>noise</strong> — 落在 ±2 分钟内</li>
+</ul>
+<h3>c07-pixel-office-week-short</h3>
+<ul>
+<li>阶段 Δ：<code>setup -0.6</code>，<code>children_wall -4.4</code>，<code>post_children -3.6</code>，<code>resume_gap -0.4</code>，<code>total -8.6</code></li>
+<li>信号摘要：perf poll 0→2（250s，与 async 主张相反）；engine 读者 3→4；first_write 7.13→4.58。</li>
+<li>类别：<strong>attributed</strong> — 信号 scoped_onboarding；可解释≈4.5 / −8.6</li>
+</ul>
+<p>  （独立判定：poll↑ + engine 未降，与主张矛盾，标随机性/计划分叉。）</p>
+<h3>c08-kids-waste-sorting-toy-3d</h3>
+<ul>
+<li>阶段 Δ：<code>total -52.8</code>（不可比）</li>
+<li>信号摘要：base 未交付；perf 有 4 children；base 有 asset retype。</li>
+<li>类别：<strong>inconclusive</strong> — 未交付</li>
+</ul>
+<h3>c09-pour-over-coffee-papercut-howto</h3>
+<ul>
+<li>阶段 Δ：<code>setup -5.0</code>，<code>children_wall -1.9</code>，<code>post_children -10.7</code>，<code>resume_gap +1.9</code>，<code>total -17.5</code></li>
+<li>信号摘要：resume_gap 变差；engine 读者 5→4；first_write 6.1→4.2；asset_cp 1→0。</li>
+<li>类别：<strong>attributed</strong> — 信号 scoped_onboarding；可解释≈3.2 / −17.5</li>
+</ul>
+<p>  （独立判定：主因 post_children/setup，first_write 节省远小于 Δ，标随机性。）</p>
+<h3>c10-neon-filaments-art-piece</h3>
+<ul>
+<li>阶段 Δ：<code>total -6.8</code></li>
+<li>信号摘要：结构 0→1 child；retype 2→0，cp 0→1。</li>
+<li>类别：<strong>attributed</strong> — 信号 asset_cp；可解释≈0.0 / −6.8</li>
+</ul>
+<p>  （独立判定：资产信号解释不了约 7 分钟，结构分叉为主，标随机性。）</p>
+<hr>
+<h2>与独立判定的关系（速览）</h2>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>信号判定器（本文件）</th><th>独立判定</th></tr></thead><tbody>
+<tr><td>完整对均值</td><td>含 c08 时 −7.1（失真）</td><td>排除 c08：<strong>−2.0</strong></td></tr>
+<tr><td>四项改动是否可信</td><td>偏乐观（5 例 attributed）</td><td><strong>均不可信（0/4）</strong></td></tr>
+<tr><td>建议</td><td>作信号扫描参考</td><td><strong>以独立判定为准做合入决策</strong></td></tr>
+</tbody></table></div>
+</div></body></html>
