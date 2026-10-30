@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>code-motion 1008 A/B review</title>
+<style>
+:root { --bg:#0f1115; --panel:#1a1e27; --ink:#e8e6e1; --muted:#9aa3b2; --line:#2a3140; --ok:#1f3a2f; --pend:#3a2f1f; --miss:#3a1f1f; }
+* { box-sizing:border-box; }
+body { margin:0; font:14px/1.45 "IBM Plex Sans", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+header { padding:28px 32px 12px; border-bottom:1px solid var(--line); }
+header h1 { margin:0 0 6px; font:600 22px/1.2 "IBM Plex Sans", sans-serif; letter-spacing:-0.02em; }
+header p { margin:0; color:var(--muted); max-width:72ch; }
+.summary { display:flex; gap:18px; flex-wrap:wrap; padding:16px 32px; color:var(--muted); }
+.summary b { color:var(--ink); }
+section { padding:12px 32px 28px; border-bottom:1px solid var(--line); }
+section h2 { margin:0 0 4px; font-size:16px; }
+.tags { color:var(--muted); margin-bottom:10px; }
+.prompt { background:var(--panel); padding:10px 12px; border-radius:6px; white-space:pre-wrap; color:#c9c6bf; margin-bottom:12px; max-height:9em; overflow:auto; }
+table { width:100%; border-collapse:collapse; table-layout:fixed; }
+th, td { vertical-align:top; padding:8px; border:1px solid var(--line); }
+th { text-align:left; color:var(--muted); font-weight:500; }
+td.ok { background:var(--ok); }
+td.pend { background:var(--pend); }
+td.miss { background:var(--miss); }
+.meta { font-size:12px; color:#c9c6bf; margin-bottom:8px; }
+.meta a { color:#8eb6ff; }
+video { width:100%; background:#000; border-radius:4px; max-height:360px; }
+.nofilm { padding:40px 12px; text-align:center; color:var(--muted); background:#111; border-radius:4px; }
+.delta { font-size:13px; margin-top:8px; }
+.faster { color:#7ddea0; } .slower { color:#f0a0a0; } .same { color:var(--muted); }
+</style></head><body>
+<header>
+  <h1>code-motion-opus55-1008 A/B · round 1</h1>
+  <p>base = frozen 1008. perf = same + 4 latency changes (async children, scoped builder onboarding, cp installed assets, public entry path). Watch each pair side by side; judge whether quality regressed. Times come from chat timestamps (user message → first .mp4 delivery).</p>
+<p style="margin-top:10px"><a href="independent_judge.zh.md" style="color:#8eb6ff">独立判定（中文）</a> · <a href="judge_report.zh.md" style="color:#8eb6ff">信号判定（中文）</a> · <a href="independent_judge.md" style="color:#9aa3b2">independent EN</a> · <a href="judge_report.md" style="color:#9aa3b2">signal EN</a></p><p style="margin-top:8px;color:#9aa3b2;font-size:13px">成片走 VidMuse dev CDN，需能访问 sandaii 网络才能播放视频。</p></header>
+<div class="summary"><div><b>Note:</b> c08-base still running at &gt;100m (hung/slow solo build); excluded from mean. c03-perf film path is under <code>output/</code>, not <code>renders/</code>.</div><div>Review site: <code>http://127.0.0.1:8765/</code> · metrics <code>/tmp/cmperf/ab/metrics.jsonl</code> · judge <code>/tmp/cmperf/ab/judge_report.md</code></div></div><div class="summary"><div>films delivered <b>19/20</b></div><div>mean perf−base <b>-7.1 min</b> over 10 pairs</div><div>updated from status.json</div></div>
+<section id="c01-earbuds-night-studio-promo">
+          <h2>c01-earbuds-night-studio-promo</h2>
+          <div class="tags">en · 16:9 · ~30s · product promo · 3D-look dark studio product commercial, floating product under rim lights, glossy metal reflections, one continuous camera move</div>
+          <div class="prompt">Hey! I need a 30-second promo for our new wireless earbuds, the Lumen Pods 2, from a small audio brand called Kestrel Audio. Think sleek product commercial: dark studio, the charging case floating and slowly turning under rim lights, glossy metal reflections, ideally one smooth continuous camera move. Points to hit: 42-hour battery with the case, adaptive noise cancelling, 9 minutes of charging gives 3 hours of music, and the price, $129. End on the tagline "Hear the quiet." and kestrelaudio.com. I'm about to board a flight, so don't wait on me or send me questions. Make whatever decisions you need and just deliver the finished video.</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 106.2m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/545e5ed8-a302-4dc5-80c6-bb85834b8ddb" target="_blank">545e5ed8</a>
+      <b>41.9 min</b> · setup 12.3 · kids 11.5 · 1st write 6.5 · engine-readers 3/3 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_545e5ed8-a302-4dc5-80c6-bb85834b8ddb/renders/lumen_pods_2_v1.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 106.3m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/3836b78e-e624-4af6-b1ef-fee00b227d53" target="_blank">3836b78e</a>
+      <b>36.7 min</b> · asset cp=0 retype=1</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_3836b78e-e624-4af6-b1ef-fee00b227d53/renders/lumen_pods2_v3.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-5.2 min</b></div>
+        </section>
+<section id="c02-shift-scheduling-saas-walkthrough">
+          <h2>c02-shift-scheduling-saas-walkthrough</h2>
+          <div class="tags">zh · 16:9 · ~60s · app/SaaS feature walkthrough · clean flat 2D UI, phone and laptop screens floating in space, smooth push-ins between interfaces, light background with brand orange</div>
+          <div class="prompt">你好，我们是做餐饮门店排班工具的小团队，产品叫「排排班」。下个月要在一个餐饮行业展会上循环播放，想做一个1分钟左右的产品功能介绍动画，横屏。
+目标观众是连锁餐饮的店长和区域经理，他们每周排班都要在Excel和微信群里来回折腾。
+结构大概是：
+1. 开头5秒左右抛痛点：周日晚上店长还对着Excel排下周的班，微信群里员工不停发“我周三要请假”；
+2. 然后引出「排排班」，依次展示三个核心功能：① 智能排班——输入客流预测，一键生成一周班表，能看到格子自动填满；② 换班申请——员工在手机上发起换班，店长点一下同意，班表自动更新；③ 工时统计——自动算出每个人本月工时和人力成本，比如“本月总工时 1,286 小时，人力成本节省 12%”；
+3. 结尾放一句客户数据“已服务 2,300+ 家门店”，再出产品名和slogan「排班这件事，交给排排班」，以及官网 paipaiban.cn。
+画面想要干净的扁平风：浅色背景，手机和电脑界面悬浮在画面里，镜头在界面之间平滑推拉，有点科技感但别太冷，主色用我们的品牌橙 #FF7A1A 配灰白。界面你自己设计，看起来像真实产品就行。
+要不要配音、用什么音乐你自己定。我接下来一整天都在展会布展，没法回消息，你别问我任何问题，所有细节自己拿主意，直接出完整成片。</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 106.0m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/a32731ef-d53e-48b5-8c72-a66ce775692d" target="_blank">a32731ef</a>
+      <b>37.1 min</b> · setup 12.5 · kids 20.0 · 1st write 7.6 · engine-readers 5/5 · asset cp=1 retype=1 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_a32731ef-d53e-48b5-8c72-a66ce775692d/renders/paipaiban_film_v6.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 106.1m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/16e7caf8-f944-427b-8616-410310a13620" target="_blank">16e7caf8</a>
+      <b>63.5 min</b> · setup 21.8 · kids 34.8 · 1st write 6.3 · engine-readers 6/6 · asset cp=0 retype=1 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_16e7caf8-f944-427b-8616-410310a13620/output/paipaiban_expo_v8_final.mp4"></video>
+    </td></tr></table>
+          <div class="delta slower">perf − base = <b>+26.4 min</b></div>
+        </section>
+<section id="c03-pythagoras-hand-drawn-explainer">
+          <h2>c03-pythagoras-hand-drawn-explainer</h2>
+          <div class="tags">en · 16:9 · ~60s · educational science/math explainer · hand-drawn black ink line art on cream graph paper with a single yellow accent color</div>
+          <div class="prompt">I teach 8th grade math and I'd like a short animated explainer on why the Pythagorean theorem works, about a minute long, to open tomorrow's lesson. I love that hand-drawn look: black ink lines on cream graph paper, with one bright accent color (yellow maybe) for the parts that matter. Show a right triangle, build a square on each side, then do the classic rearrangement proof where the pieces slide around so the kids can actually see a² + b² = c². Finish with a quick real-world example, like checking whether the corner of a garden bed is truly square using 3, 4 and 5 feet. Please add a calm, friendly English voiceover that 13-year-olds can follow. I won't be able to reply before class, so please don't wait on me for anything. Make your own calls and give me the final video.</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 105.8m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/e4bd9266-d086-4aa6-8032-a8b9746b5604" target="_blank">e4bd9266</a>
+      <b>33.9 min</b> · setup 16.9 · kids 13.0 · 1st write 7.1 · engine-readers 3/3 · asset cp=0 retype=1 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_e4bd9266-d086-4aa6-8032-a8b9746b5604/renders/pythagoras_final_v1.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 105.9m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/8d521982-cea4-4bda-96f3-577ad152dbc3" target="_blank">8d521982</a>
+      <b>37.5 min</b> · setup 20.6 · kids 10.7 · 1st write 6.5 · engine-readers 4/4 · poll 1 (240s) · asset cp=0 retype=1 · resume gap 0.7</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_8d521982-cea4-4bda-96f3-577ad152dbc3/output/pythagoras_final_v1.mp4"></video>
+    </td></tr></table>
+          <div class="delta slower">perf − base = <b>+3.6 min</b></div>
+        </section>
+<section id="c04-maritime-silk-road-vintage-map">
+          <h2>c04-maritime-silk-road-vintage-map</h2>
+          <div class="tags">zh · 16:9 · ~75s · history/culture story · vintage printed atlas / old sea chart on yellowed paper, red route line drawing across the map, big annotated numbers, documentary tone</div>
+          <div class="prompt">想做一个讲「海上丝绸之路」的历史小科普动画，放在我们博物馆公众号的推文里，75秒左右，横屏。
+主线是：一船宋代青瓷从泉州港出发，经过南海、马六甲海峡、印度洋，最后抵达波斯湾的港口。可以讲这么几个点：
+- 宋元时期泉州被称为“东方第一大港”；
+- 船要靠季风航行，冬天乘东北季风出发，夏天乘西南季风回来，一个来回往往要一到两年；
+- 船上除了瓷器还有丝绸和茶叶，回程带回香料、象牙和宝石；
+- 结尾落到“今天的泉州还保留着当年的清净寺和大量石刻，2021年泉州申遗成功”。
+画面想要那种老地图、旧版印刷海报的感觉：泛黄的纸质海图，细线勾出的海岸线，航线用一条红线慢慢画出来，关键地名和数字（天数、距离之类）用大字标在地图上，偶尔镜头推近到某个港口。不要出现具体人物的脸。
+需要中文旁白，语气像纪录片那样沉稳，配一点古朴的背景音乐，屏幕上要有字幕。
+中间不用跟我确认脚本或风格，我这几天出差不在线，你全权决定，直接给我最终成品就好。</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 105.8m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/5cb8ff1a-ecd2-45d3-998f-c0e39a7fa93b" target="_blank">5cb8ff1a</a>
+      <b>46.7 min</b> · setup 10.3 · kids 19.8 · 1st write 8.2 · engine-readers 4/4 · poll 1 (5s) · resume gap 0.1</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_5cb8ff1a-ecd2-45d3-998f-c0e39a7fa93b/out/maritime_silk_road_final_v1.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 105.7m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/5ac674e1-df1e-4de3-8aee-21a396586fc6" target="_blank">5ac674e1</a>
+      <b>39.2 min</b> · setup 10.5 · kids 19.0 · 1st write 9.6 · engine-readers 4/4 · asset cp=0 retype=2 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_5ac674e1-df1e-4de3-8aee-21a396586fc6/out/海上丝绸之路_一船青瓷的远航.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-7.5 min</b></div>
+        </section>
+<section id="c05-coffee-brand-annual-data">
+          <h2>c05-coffee-brand-annual-data</h2>
+          <div class="tags">zh · 16:9 · ~45s · data/report visualization · clean infographic data charts morphing into each other (bars, lines, bubbles), rolling numbers, off-white with dark coffee brown and orange</div>
+          <div class="prompt">帮我把我们咖啡品牌「山岚咖啡」2025年的年度数据做成一个45秒左右的数据动画，年会上大屏放。数据如下：全年卖出 386 万杯；门店从 42 家开到 67 家；会员 51 万，复购率 63%；最受欢迎的是桂花拿铁，卖了 72 万杯；外卖占比从 28% 涨到 41%。想要那种干净的信息图风格，柱状图、折线、气泡图一个接一个变形过渡，数字滚动着跳出来，米白底配深咖色和一点橙色。不用问我，直接做完整成片，节奏和细节你看着办。</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 105.5m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/e02fb08f-0e5a-46aa-8524-ca241579c752" target="_blank">e02fb08f</a>
+      <b>32.5 min</b> · setup 8.8 · kids 17.5 · 1st write 7.4 · engine-readers 3/3 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_e02fb08f-0e5a-46aa-8524-ca241579c752/out/shanlan_2025_v5.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 105.6m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/287b455e-235d-447e-9497-b8ef620964a5" target="_blank">287b455e</a>
+      <b>29.2 min</b> · setup 9.5 · kids 13.4 · 1st write 5.7 · engine-readers 4/4 · asset cp=1 retype=0 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_287b455e-235d-447e-9497-b8ef620964a5/out/shanlan_2025_v1.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-3.3 min</b></div>
+        </section>
+<section id="c06-hackathon-teaser-slam-type">
+          <h2>c06-hackathon-teaser-slam-type</h2>
+          <div class="tags">en · 9:16 · ~20s · brand/event teaser · bold kinetic typography slamming on the beat, black/white with one loud red</div>
+          <div class="prompt">Need a 20-sec vertical teaser for Instagram Stories for our weekend hackathon: BUILD/48, Nov 21–23, Pier 9 Warehouse in Oakland, 48 hours, $20K in prizes. Big bold words slamming onto the screen in sync with a punchy beat, black and white plus one loud red. No need to check with me, just make the final video.</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 105.3m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/269f6cce-f55f-4d41-8fb8-c40ba74265c7" target="_blank">269f6cce</a>
+      <b>23.6 min</b> · setup 5.8 · kids 10.0 · 1st write 3.8 · engine-readers 5/5 · resume gap 0.3</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_269f6cce-f55f-4d41-8fb8-c40ba74265c7/renders/build48_teaser_v7.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 105.2m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/d2cd06e2-c46a-43f5-a9f4-159ad747671c" target="_blank">d2cd06e2</a>
+      <b>24.4 min</b></div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_d2cd06e2-c46a-43f5-a9f4-159ad747671c/renders/BUILD48_teaser_v4.mp4"></video>
+    </td></tr></table>
+          <div class="delta same">perf − base = <b>+0.8 min</b></div>
+        </section>
+<section id="c07-pixel-office-week-short">
+          <h2>c07-pixel-office-week-short</h2>
+          <div class="tags">zh · 9:16 · ~30s · social-media short · retro 8-bit pixel game look with health bars, coins and level banners</div>
+          <div class="prompt">想发个抖音，30秒左右竖屏，用8-bit像素游戏的画风讲“打工人的一周”：周一满血出发，周三血条见底，周四被老板放大招，周五下班那一刻通关放烟花。要搞笑一点，有游戏里那种血条、金币和关卡提示。别问我问题哈，直接给我做好的视频就行。</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 105.1m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/46a6e653-495d-44d6-9d42-54913967548a" target="_blank">46a6e653</a>
+      <b>33.6 min</b> · setup 8.7 · kids 12.7 · 1st write 7.1 · engine-readers 3/3 · resume gap 0.4</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_46a6e653-495d-44d6-9d42-54913967548a/renders/film_v5.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 105.0m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/ace6a982-5e47-4328-8804-50f07a1965a8" target="_blank">ace6a982</a>
+      <b>25.0 min</b> · setup 8.1 · kids 8.3 · 1st write 4.6 · engine-readers 4/4 · poll 2 (250s) · resume gap 0.0</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_ace6a982-5e47-4328-8804-50f07a1965a8/dagongren_week_v1.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-8.6 min</b></div>
+        </section>
+<section id="c08-kids-waste-sorting-toy-3d">
+          <h2>c08-kids-waste-sorting-toy-3d</h2>
+          <div class="tags">zh · 16:9 · ~40s · kids/education · chunky toy-like 3D cartoon blocks, bright saturated colors, cute cube mascot</div>
+          <div class="prompt">我是幼儿园大班老师，下周要给孩子们上垃圾分类的课，想要一个40秒左右的小动画，在教室投影上放。四种垃圾桶：可回收物（蓝色）、厨余垃圾（绿色）、有害垃圾（红色）、其他垃圾（灰色），每种举一两个小朋友熟悉的例子，比如旧报纸、香蕉皮、过期的药、用过的纸巾。画风想要那种圆滚滚、像积木玩具一样的3D卡通，颜色鲜亮，可以有个小方块角色带着大家把垃圾一个个丢进对的桶里。字要大、句子要短，5岁小朋友能看懂。我这边没时间来回沟通，其他你都自己拿主意，一次性做完给我。</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='pend'>
+      <div class='meta'>base · running · 104.9m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/8e9de2f9-8ecb-4377-9508-e549849dd9a2" target="_blank">8e9de2f9</a>
+      <b>97.7 min</b> · asset cp=0 retype=1</div>
+      <div class='nofilm'>no film yet</div>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 105.0m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/5d485c27-3019-402a-bc71-f761b460c557" target="_blank">5d485c27</a>
+      <b>44.9 min</b> · setup 15.7 · kids 19.3 · 1st write 6.6 · engine-readers 4/4 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_5d485c27-3019-402a-bc71-f761b460c557/output/laji_fenlei_v9.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-52.8 min</b></div>
+        </section>
+<section id="c09-pour-over-coffee-papercut-howto">
+          <h2>c09-pour-over-coffee-papercut-howto</h2>
+          <div class="tags">ja · 9:16 · ~40s · process/how-to · soft washi paper-cut collage look, layered cut-paper shapes with seasonal colors</div>
+          <div class="prompt">京都で小さな喫茶店「こもれび珈琲」をやっています。お店のインスタのリール用に、ハンドドリップコーヒーの淹れ方を紹介する40秒くらいの縦型アニメを作ってほしいです。手順は、①豆15gを中細挽きにする ②お湯は90℃くらい ③30mlを注いで30秒蒸らす ④3回に分けて、「の」の字を描くように合計240mlまで注ぐ ⑤3分以内に落としきる、の5ステップです。和紙を切り貼りしたような、やわらかい切り絵風の絵で、秋らしい色合いだとうれしいです。ナレーションはなしで、日本語の字幕と静かなBGMだけでお願いします。途中での確認は不要です。私は返信できないので、細かいところはすべてお任せで、完成版まで仕上げてください。</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 104.8m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/05770729-827d-43e1-bb45-74aea45fb369" target="_blank">05770729</a>
+      <b>50.3 min</b> · setup 19.6 · kids 13.3 · 1st write 6.1 · engine-readers 5/5 · asset cp=1 retype=0 · resume gap 0.1</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_05770729-827d-43e1-bb45-74aea45fb369/out/komorebi_handdrip_v1.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 104.7m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/5d9aaca0-b50f-4622-b0ef-7ebd57083cd7" target="_blank">5d9aaca0</a>
+      <b>32.8 min</b> · setup 14.6 · kids 11.4 · 1st write 4.2 · engine-readers 4/4 · resume gap 2.0</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_5d9aaca0-b50f-4622-b0ef-7ebd57083cd7/workspace/out/komorebi_handdrip_v1.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-17.5 min</b></div>
+        </section>
+<section id="c10-neon-filaments-art-piece">
+          <h2>c10-neon-filaments-art-piece</h2>
+          <div class="tags">en · 1:1 · ~25s · abstract art piece / kinetic typography · neon/cyberpunk generative art, glowing particle threads swarming in the dark and forming a city, ending on a short line of text</div>
+          <div class="prompt">Make me a 25-second square art piece for my Instagram: thousands of glowing neon threads swarming in the dark, slowly organizing themselves into a city at night, then the words "small rules, big worlds" fade in. Moody, hypnotic, a bit cyberpunk. Surprise me, don't ask anything, just finish it.</div>
+          <table><tr><th>base (1008 frozen)</th><th>perf (round-1 changes)</th></tr>
+          <tr><td class='ok'>
+      <div class='meta'>base · terminated · 104.5m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/4247b9d2-6b54-4fec-8c26-1a5b0e748494" target="_blank">4247b9d2</a>
+      <b>42.7 min</b> · asset cp=0 retype=2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_4247b9d2-6b54-4fec-8c26-1a5b0e748494/renders/small_rules_final_v3.mp4"></video>
+    </td><td class='ok'>
+      <div class='meta'>perf · terminated · 104.6m elapsed<br>
+      <a href="https://dev-vidmuse-admin.sandaii.cn/playground/thread/52123612-cb83-4a35-87b5-4b72b13aa277" target="_blank">52123612</a>
+      <b>35.9 min</b> · setup 5.6 · kids 6.1 · 1st write 2.7 · engine-readers 0/1 · asset cp=1 retype=0 · resume gap 0.2</div>
+      <video controls preload="metadata" src="https://vidmuse-dev-video.sandcdn.com/v2/static/thread_52123612-cb83-4a35-87b5-4b72b13aa277/renders/neon_thread_city_v1.mp4"></video>
+    </td></tr></table>
+          <div class="delta faster">perf − base = <b>-6.8 min</b></div>
+        </section>
+</body></html>
